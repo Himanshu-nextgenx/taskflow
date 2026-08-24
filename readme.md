@@ -32,16 +32,27 @@ npm run dev       # starts API
 npm run worker    # starts background worker (separate terminal)
 ```
 
-## Environment Variables (`.env`)
 
+# Environment Variables
 
+Create a `.env` file in the project root and configure the following variables:
+```env
 
-DATABASE_URL=postgresql://postgres:<password>@postgres:5432/taskflow?schema=public
-ACCESS_TOKEN_SECRET=your_secret_here
-REFRESH_TOKEN_SECRET=your_secret_here
+PORT=3000
+
+DATABASE_URL="postgresql://postgres:YOUR_DB_PASSWORD@postgres:5432/taskflow"
+
 REDIS_HOST=redis
 REDIS_PORT=6379
-PORT=3000
+
+ACCESS_TOKEN_SECRET="your-random-access-secret"
+REFRESH_TOKEN_SECRET="your-random-refresh-secret"
+
+# Gmail OAuth2
+CLIENT_ID="your-google-client-id"
+CLIENT_SECRET="your-google-client-secret"
+REFRESH_TOKEN="your-google-oauth-refresh-token"
+EMAIL_USER="your-gmail-address"
 
 
 ## Test Login (from seed data)
@@ -53,38 +64,97 @@ PORT=3000
 | priya@tcs.com | Password123 | org_admin | TCS |
 | karan@tcs.com | Password123 | member | TCS |
 
-## Folder Structure
-prisma/
-schema.prisma → DB schema
-seed.ts → seed data script
-src/
-config/ → Prisma client setup (with pg adapter)
-jobs/
-controller/ → job status controller
-queues/ → BullMQ queue definitions
-routes/ → GET /jobs/:id route
-workers/ → email worker (processes background jobs)
-middlewares/
-auth.middleware.ts → verifies JWT, sets req.user
-admin.middleware.ts → checks role === org_admin
-ratelimiter.ts → rate limits auth routes
-modules/
-auth/ → register, login, refresh, logout
-organization/ → add member endpoint
-projects/ → project CRUD + dashboard
-tasks/ → task CRUD, filters, assign/unassign
-comments/ → task comments
-types/ → shared TS types (UserPayload, DTOs)
-utils/
-tokens.ts → JWT generate/verify helpers
-appError.ts → custom error class
-validations/ → Zod schemas
-app.ts → Express app + route registration
-server.ts → app entry point (starts HTTP server)
-worker.ts → worker entry point (separate process)
+##  Folder Structure
 
-docker-compose.yml
-dockerfile
+```text
+taskflow/
+│
+├── prisma/
+│   ├── schema.prisma
+│   └── seed.ts
+│
+├── src/
+│   │
+│   ├── config/
+│   │   ├── nodemailer.ts
+│   │   ├── prisma.ts
+│   │   ├── redis.ts
+│   │   └── swagger.ts
+│   │
+│   ├── jobs/
+│   │   ├── controller/
+│   │   │   └── job.controller.ts
+│   │   │
+│   │   ├── queues/
+│   │   │   └── email.queue.ts
+│   │   │
+│   │   ├── routes/
+│   │   │   └── job.route.ts
+│   │   │
+│   │   └── workers/
+│   │       └── email.worker.ts
+│   │
+│   ├── middlewares/
+│   │   ├── admin.middleware.ts
+│   │   ├── auth.middleware.ts
+│   │   └── ratelimiter.ts
+│   │
+│   ├── modules/
+│   │   │
+│   │   ├── auth/
+│   │   │   ├── controller/
+│   │   │   │   └── auth.controller.ts
+│   │   │   ├── routes/
+│   │   │   │   └── auth.route.ts
+│   │   │   └── service/
+│   │   │       └── auth.service.ts
+│   │   │
+│   │   ├── comments/
+│   │   │   ├── controller/
+│   │   │   ├── routes/
+│   │   │   └── service/
+│   │   │
+│   │   ├── organizations/
+│   │   │   ├── controller/
+│   │   │   ├── routes/
+│   │   │   └── service/
+│   │   │
+│   │   ├── projects/
+│   │   │   ├── controller/
+│   │   │   ├── routes/
+│   │   │   └── service/
+│   │   │
+│   │   └── tasks/
+│   │       ├── controller/
+│   │       ├── routes/
+│   │       └── service/
+│   │
+│   ├── types/
+│   │   └── ...
+│   │
+│   ├── utils/
+│   │   ├── appError.ts
+│   │   └── tokens.ts
+│   │
+│   ├── validations/
+│   │   ├── auth.validator.ts
+│   │   ├── project.validator.ts
+│   │   └── task.validator.ts
+│   │
+│   └── app.ts
+│
+├── .dockerignore
+├── .env.example
+├── .gitignore
+├── Dockerfile
+├── docker-compose.yml
+├── package.json
+├── package-lock.json
+├── server.ts
+├── Architecture.md
+├── taskflow.postman_collection.json
+├── tsconfig.json
+└── README.md
 
 ## API Endpoints
 

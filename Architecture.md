@@ -1,5 +1,23 @@
 # TaskFlow — Architecture
 
+
+
+The application follows a modular layered architecture:
+
+Route → Controller → Service → Data Access
+
+- **Routes** define API endpoints and attach required middleware.
+- **Controllers** handle HTTP requests and responses.
+- **Services** contain the application's business logic.
+- **Prisma** handles PostgreSQL database access.
+- **Middlewares** handle authentication, authorization and rate limiting.
+- **Zod** provides request validation.
+- **BullMQ + Redis** handle background jobs.
+- **Workers** process background email notifications.
+- **Nodemailer** handles email delivery.
+- **Swagger** provides interactive API documentation. 
+
+
 ## What it is
 
 A REST API where each request goes: **Route → Middleware → Controller → 
@@ -28,6 +46,7 @@ Two separate Node processes run:
 
 They both talk to the same PostgreSQL database and Redis instance, so they 
 can run as separate Docker containers (see `docker-compose.yml`).
+
 
 ## Request Flow — Example: Assign a Task
 
