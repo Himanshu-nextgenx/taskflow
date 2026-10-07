@@ -37,11 +37,13 @@ enum TaskPriority {
   @@map("task_priority_enum")
 }
 
+
 model Organization {
   id        String      @id @default(uuid()) @db.Uuid
   name      String
   members   OrgMember[]
   projects  Project[]
+  channel   Channel[]
   createdAt DateTime    @default(now()) @map("created_at")
   updatedAt DateTime    @updatedAt @map("updated_at")
   deletedAt DateTime?   @map("deleted_at")
@@ -69,6 +71,8 @@ model OrgMember {
   organizationId String       @db.Uuid
   userId         String       @db.Uuid
   role           UserRole     @default(member)
+  channelMemberships ChannelMembers[]
+  channelMessages ChannelMessages[]
   createdAt      DateTime     @default(now()) @map("created_at")
   updatedAt      DateTime     @updatedAt @map("updated_at")
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
@@ -152,4 +156,51 @@ model RefreshToken {
 
   @@index([userId], name: "IDX_refresh_tokens_userId")
   @@map("refresh_tokens")
+}
+
+model ChannelMembers{
+  id String @id @default(uuid()) @db.Uuid
+orgMemberId String @db.Uuid
+channelId String @db.Uuid
+
+orgMember OrgMember  @relation(fields:[orgMemberId],references:[id],onDelete:Cascade)
+channel Channel  @relation(fields:[channelId],references:[id], onDelete:Cascade)
+
+joinedAt DateTime @default(now())
+
+@@unique([orgMemberId,channelId], name:"UQ_orgmember_channel")
+@@map("channel_members")
+}
+
+model Channel {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  name String  
+  organization Organization @relation(fields: [organizationId], references: [id])
+  members ChannelMembers[]
+  messages ChannelMessages[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime  @updatedAt 
+  deletedAt DateTime? 
+
+
+@@map("channel")
+
+}
+
+
+model ChannelMessages {
+  id String  @id @default(uuid()) @db.Uuid
+  channelId String @db.Uuid
+  senderId String @db.Uuid
+  content String
+  sendedAt DateTime @default(now())
+ updatedAt DateTime  @updatedAt 
+  deletedAt DateTime? 
+
+  channel Channel   @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  sender  OrgMember @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+@@map("channel_messages")
+
 }
